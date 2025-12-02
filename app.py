@@ -67,6 +67,9 @@ def process_frame():
         # Process
         match_name, score = matcher.process_frame(rgb)
         
+        # Log the result to help debugging
+        print(f"[DEBUG] Match: {match_name}, Score: {score}")
+        
         return jsonify({
             'match_name': match_name,
             'score': float(score) if score is not None else 0.0
@@ -76,11 +79,10 @@ def process_frame():
         print(f"Error processing frame: {e}")
         return jsonify({'error': str(e)}), 500
 
-
 if __name__ == '__main__':
-    import os
     # Get the PORT from Render, default to 5000 for local testing
     port = int(os.environ.get("PORT", 5000))
-    # debug=False is safer for production
+    # debug=False is safer for production, though we might want True for debugging right now
     app.run(debug=False, host='0.0.0.0', port=port)
+
 
