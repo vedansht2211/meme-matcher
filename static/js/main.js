@@ -13,11 +13,15 @@ let currentScore = 0;
 
 // Access Webcam
 async function startCamera() {
+    scoreTextEl.textContent = "Init...";
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
+        scoreTextEl.textContent = "Cam OK";
     } catch (err) {
         console.error("Error accessing webcam:", err);
+        scoreTextEl.textContent = "Cam Err";
+        scoreBarEl.style.backgroundColor = "#ff0000";
         alert("Could not access webcam. Please allow camera permissions.");
     }
 }
@@ -27,13 +31,15 @@ async function sendFrame() {
     if (isProcessing) return;
     isProcessing = true;
 
-    // Draw video frame to canvas
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // Draw video frame to canvas (Downscale for performance)
+    const width = 320;
+    const height = 240;
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(video, 0, 0, width, height);
 
     // Convert to base64
-    const dataURL = canvas.toDataURL('image/jpeg', 0.7); // 0.7 quality to save bandwidth
+    const dataURL = canvas.toDataURL('image/jpeg', 0.5); // 0.5 quality to save bandwidth
 
     try {
         const response = await fetch('/process_frame', {
@@ -57,7 +63,7 @@ async function sendFrame() {
         isProcessing = false;
         // Schedule next frame. 
         // Adjust delay to balance performance/lag. 100ms = ~10fps max
-        setTimeout(sendFrame, 2000);
+        setTimeout(sendFrame, 100);
     }
 }
 
@@ -104,6 +110,7 @@ video.addEventListener('loadeddata', () => {
 });
 
 startCamera();
+
 
 
 
