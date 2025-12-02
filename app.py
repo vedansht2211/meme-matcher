@@ -77,13 +77,14 @@ def process_frame():
         })
         
     except Exception as e:
-        print(f"Error processing frame: {e}")
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        print(f"[ERROR] processing frame: {e}")
+        return jsonify({'error': str(e), 'match_name': None, 'score': 0.0, 'face_detected': False}), 500
 
 if __name__ == '__main__':
     # Get the PORT from Render, default to 5000 for local testing
     port = int(os.environ.get("PORT", 5000))
     # debug=False is safer for production, though we might want True for debugging right now
     app.run(debug=False, host='0.0.0.0', port=port)
-
 
