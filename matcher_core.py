@@ -224,4 +224,6 @@ class MemeMatcherCore:
                 best_overall_score = m_score
                 best_overall_match = m_name
                 
-        return best_overall_match, best_overall_score
+        return best_overall_match, best_overall_score, (live_face is not None)
+
+
