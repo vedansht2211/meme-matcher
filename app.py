@@ -7,9 +7,14 @@ from matcher_core import MemeMatcherCore
 
 app = Flask(__name__)
 
+# Ensure absolute paths for robustness on Render
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MEME_FOLDER = os.path.join(BASE_DIR, 'memes_folder')
+LEARNED_DATA = os.path.join(BASE_DIR, 'learned_data.json')
+
 # Initialize the matcher
 # Note: In a production environment with multiple workers, this would be loaded per worker.
-matcher = MemeMatcherCore()
+matcher = MemeMatcherCore(meme_folder=MEME_FOLDER, learned_data_file=LEARNED_DATA)
 
 @app.route('/')
 def index():
@@ -19,6 +24,24 @@ def index():
 def serve_meme(filename):
     return send_from_directory(matcher.meme_folder, filename)
 
+@app.route('/debug')
+def debug_info():
+    """Helper to diagnose deployment issues"""
+    try:
+        meme_files = os.listdir(matcher.meme_folder) if os.path.exists(matcher.meme_folder) else []
+        return jsonify({
+            'base_dir': BASE_DIR,
+            'meme_folder_path': matcher.meme_folder,
+            'meme_folder_exists': os.path.exists(matcher.meme_folder),
+            'meme_files_count': len(meme_files),
+            'meme_files_sample': meme_files[:5],
+            'loaded_memes_count': len(matcher.meme_features),
+            'learned_data_count': len(matcher.learned_data),
+            'cwd': os.getcwd()
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
 @app.route('/process_frame', methods=['POST'])
 def process_frame():
     try:
@@ -27,7 +50,11 @@ def process_frame():
         
         # Decode base64 image
         # Format is usually "data:image/jpeg;base64,......"
-        header, encoded = image_data.split(",", 1)
+        if "," in image_data:
+            header, encoded = image_data.split(",", 1)
+        else:
+            encoded = image_data
+            
         nparr = np.frombuffer(base64.b64decode(encoded), np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         
@@ -49,9 +76,11 @@ def process_frame():
         print(f"Error processing frame: {e}")
         return jsonify({'error': str(e)}), 500
 
+
 if __name__ == '__main__':
     import os
     # Get the PORT from Render, default to 5000 for local testing
     port = int(os.environ.get("PORT", 5000))
     # debug=False is safer for production
     app.run(debug=False, host='0.0.0.0', port=port)
+
