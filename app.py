@@ -65,14 +65,15 @@ def process_frame():
         rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         
         # Process
-        match_name, score = matcher.process_frame(rgb)
+        match_name, score, face_detected = matcher.process_frame(rgb)
         
         # Log the result to help debugging
-        print(f"[DEBUG] Match: {match_name}, Score: {score}")
+        print(f"[DEBUG] Match: {match_name}, Score: {score}, FaceDetected: {face_detected}")
         
         return jsonify({
             'match_name': match_name,
-            'score': float(score) if score is not None else 0.0
+            'score': float(score) if score is not None else 0.0,
+            'face_detected': face_detected
         })
         
     except Exception as e:
