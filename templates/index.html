@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meme Matcher Web</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Meme Matcher</h1>
+
+        <div class="main-content">
+            <div class="video-container">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas" style="display:none;"></canvas>
+                <div class="overlay">
+                    <p>Match: <span id="match-name">...</span></p>
+                    <div class="score-bar-bg">
+                        <div id="score-bar" class="score-bar-fill"></div>
+                    </div>
+                    <p id="score-text">0%</p>
+                </div>
+            </div>
+
+            <div class="result-container">
+                <h2>Best Match</h2>
+                <img id="match-image" src="" alt="Matched Meme" style="display: none;">
+                <div id="placeholder-text">Make a face to find your meme match!</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>
