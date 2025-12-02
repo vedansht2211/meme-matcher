@@ -57,7 +57,7 @@ async function sendFrame() {
         isProcessing = false;
         // Schedule next frame. 
         // Adjust delay to balance performance/lag. 100ms = ~10fps max
-        setTimeout(sendFrame, 100);
+        setTimeout(sendFrame, 2000);
     }
 }
 
@@ -104,5 +104,6 @@ video.addEventListener('loadeddata', () => {
 });
 
 startCamera();
+
 
 
