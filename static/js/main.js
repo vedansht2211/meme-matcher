@@ -46,11 +46,13 @@ async function sendFrame() {
 
         const data = await response.json();
 
-        if (data.match_name) {
-            updateUI(data.match_name, data.score);
+        if (data.match_name !== undefined) {
+            updateUI(data.match_name, data.score, data.face_detected);
         }
     } catch (err) {
         console.error("Error sending frame:", err);
+        scoreTextEl.textContent = "Err";
+        scoreBarEl.style.backgroundColor = "#ff0000";
     } finally {
         isProcessing = false;
         // Schedule next frame. 
@@ -59,11 +61,18 @@ async function sendFrame() {
     }
 }
 
-function updateUI(name, score) {
+function updateUI(name, score, faceDetected) {
     // Smooth score update could be done here, but for now direct update
 
     // Threshold to show match
-    const THRESHOLD = 0.4; // Slightly lower than backend to be responsive
+    const THRESHOLD = 0.2; // Lowered for debugging
+
+    if (!faceDetected) {
+        scoreTextEl.textContent = "No Face";
+        scoreBarEl.style.width = "0%";
+        scoreBarEl.style.backgroundColor = "#555";
+        return;
+    }
 
     if (score > THRESHOLD) {
         matchNameEl.textContent = name;
@@ -84,7 +93,8 @@ function updateUI(name, score) {
         }
     } else {
         scoreBarEl.style.width = (score * 100) + "%";
-        scoreTextEl.textContent = Math.round(score * 100) + "%";
+        scoreTextEl.textContent = Math.round(score * 100) + "% (Low)";
+        scoreBarEl.style.backgroundColor = "#555";
         // Don't hide image immediately to avoid flickering, just update score
     }
 }
@@ -94,3 +104,5 @@ video.addEventListener('loadeddata', () => {
 });
 
 startCamera();
+
+
